@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webhook Tester</title>
+</head>
+<body>
+    <h1>Test Webhook Endpoint</h1>
+    <form id="webhookForm">
+        <label for="url">Webhook URL:</label><br>
+        <input type="text" id="url" name="url" value="https://16.16.186.140:8080/github-webhook/" required><br><br>
+        
+        <label for="payload">Payload (JSON):</label><br>
+        <textarea id="payload" name="payload" rows="10" cols="50" required>
+{
+    "test": "value"
+}
+        </textarea><br><br>
+        
+        <button type="button" onclick="sendWebhook()">Send Webhook</button>
+    </form>
+
+    <p id="response"></p>
+
+    <script>
+        async function sendWebhook() {
+            const url = document.getElementById('url').value;
+            const payload = document.getElementById('payload').value;
+            const responseElement = document.getElementById('response');
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: payload,
+                });
+
+                const responseData = await response.text();
+                responseElement.innerHTML = `
+                    <strong>Status:</strong> ${response.status}<br>
+                    <strong>Response:</strong><pre>${responseData}</pre>
+                `;
+            } catch (error) {
+                responseElement.innerHTML = `
+                    <strong>Error:</strong> ${error.message}
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
