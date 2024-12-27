@@ -1,42 +1,65 @@
-const result = document.getElementById('result')
-const filter = document.getElementById('filter')
-const listItems = []
+const API_URL = 'https://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=3fd2be6f0c70a2a598f084ddfb75487c&page=1'
+const IMG_PATH = 'https://image.tmdb.org/t/p/w1280'
+const SEARCH_API = 'https://api.themoviedb.org/3/search/movie?api_key=3fd2be6f0c70a2a598f084ddfb75487c&query="'
 
-getData()
+const main = document.getElementById('main')
+const form = document.getElementById('form')
+const search = document.getElementById('search')
 
-filter.addEventListener('input', (e) => filterData(e.target.value))
+// Get initial movies
+getMovies(API_URL)
 
-async function getData() {
-    const res = await fetch('https://randomuser.me/api?results=50')
+async function getMovies(url) {
+    const res = await fetch(url)
+    const data = await res.json()
 
-    const { results } = await res.json()
+    showMovies(data.results)
+}
 
-    // Clear result
-    result.innerHTML = ''
+function showMovies(movies) {
+    main.innerHTML = ''
 
-    results.forEach(user => {
-        const li = document.createElement('li')
+    movies.forEach((movie) => {
+        const { title, poster_path, vote_average, overview } = movie
 
-        listItems.push(li)
+        const movieEl = document.createElement('div')
+        movieEl.classList.add('movie')
 
-        li.innerHTML = `
-            <img src="${user.picture.large}" alt="${user.name.first}">
-            <div class="user-info">
-                <h4>${user.name.first} ${user.name.last}</h4>
-                <p>${user.location.city}, ${user.location.country}</p>
+        movieEl.innerHTML = `
+            <img src="${IMG_PATH + poster_path}" alt="${title}">
+            <div class="movie-info">
+          <h3>${title}</h3>
+          <span class="${getClassByRate(vote_average)}">${vote_average}</span>
             </div>
+            <div class="overview">
+          <h3>Overview</h3>
+          ${overview}
+        </div>
         `
-
-        result.appendChild(li)
+        main.appendChild(movieEl)
     })
 }
 
-function filterData(searchTerm) {
-    listItems.forEach(item => {
-        if(item.innerText.toLowerCase().includes(searchTerm.toLowerCase())) {
-            item.classList.remove('hide')
-        } else {
-            item.classList.add('hide')
-        }
-    })
+function getClassByRate(vote) {
+    if(vote >= 8) {
+        return 'green'
+    } else if(vote >= 5) {
+        return 'orange'
+    } else {
+        return 'red'
+    }
 }
+
+form.addEventListener('submit', (e) => {
+    e.preventDefault()
+
+    const searchTerm = search.value
+
+    if(searchTerm && searchTerm !== '') {
+        getMovies(SEARCH_API + searchTerm)
+
+        search.value = ''
+    } else {
+        window.location.reload()
+    }
+})
