@@ -2,21 +2,25 @@ pipeline {
     agent any
 
     stages {
-        stage('Deploy HTML') {
+        stage('Deploy Files') {
             steps {
                 sshagent(['apache']) {
                     script {
-                        echo 'Deploying index.html to remote Apache server...'
+                        echo 'Deploying files to remote Apache server...'
 
                         // Automatically add the server's SSH key to known_hosts
                         sh '''
                         mkdir -p ~/.ssh
-                        ssh-keyscan -H ip-172-31-23-190 >> ~/.ssh/known_hosts
+                        ssh-keyscan -H ip-172-31-24-16 >> ~/.ssh/known_hosts
                         chmod 644 ~/.ssh/known_hosts
                         '''
 
-                        // Copy the file to the remote server
-                        sh 'scp index.html ubuntu@ip-172-31-23-190:/var/www/html/'
+                        // Copy the files to the remote server
+                        sh '''
+                        scp index.html ubuntu@ip-172-31-24-16:/var/www/html/
+                        scp script.js ubuntu@ip-172-31-24-16:/var/www/html/
+                        scp style.css ubuntu@ip-172-31-24-16:/var/www/html/
+                        '''
                     }
                 }
             }
@@ -25,8 +29,19 @@ pipeline {
         stage('Verify Deployment') {
             steps {
                 script {
-                    echo 'Verifying index.html deployment on remote server...'
-                    sh 'curl http://ip-172-31-23-190/index.html'
+                    echo 'Verifying file deployment on remote server...'
+                    
+                    // Verify index.html
+                    echo 'Verifying index.html...'
+                    sh 'curl http://ip-172-31-24-16/index.html'
+                    
+                    // Verify script.js
+                    echo 'Verifying script.js...'
+                    sh 'curl http://ip-172-31-24-16/script.js'
+                    
+                    // Verify style.css
+                    echo 'Verifying style.css...'
+                    sh 'curl http://ip-172-31-24-16/style.css'
                 }
             }
         }
@@ -34,7 +49,7 @@ pipeline {
 
     post {
         success {
-            echo 'Deployment completed successfully!'
+            echo 'Deployment of all files completed successfully!'
         }
         failure {
             echo 'Deployment failed. Check the logs for more details.'
