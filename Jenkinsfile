@@ -11,15 +11,15 @@ pipeline {
                         // Automatically add the server's SSH key to known_hosts
                         sh '''
                         mkdir -p ~/.ssh
-                        ssh-keyscan -H ip-172-31-24-16 >> ~/.ssh/known_hosts
+                        ssh-keyscan -H ip-172-31-23-190 >> ~/.ssh/known_hosts
                         chmod 644 ~/.ssh/known_hosts
                         '''
 
                         // Copy the files to the remote server
                         sh '''
-                        scp index.html ubuntu@ip-172-31-24-16:/var/www/html/
-                        scp script.js ubuntu@ip-172-31-24-16:/var/www/html/
-                        scp style.css ubuntu@ip-172-31-24-16:/var/www/html/
+                        scp index.html ubuntu@ip-172-31-23-190:/var/www/html/
+                        scp script.js ubuntu@ip-172-31-23-190:/var/www/html/
+                        scp style.css ubuntu@ip-172-31-23-190:/var/www/html/
                         '''
                     }
                 }
@@ -33,15 +33,15 @@ pipeline {
                     
                     // Verify index.html
                     echo 'Verifying index.html...'
-                    sh 'curl http://ip-172-31-24-16/index.html'
+                    sh 'curl http://ip-172-31-23-190/index.html'
                     
                     // Verify script.js
                     echo 'Verifying script.js...'
-                    sh 'curl http://ip-172-31-24-16/script.js'
+                    sh 'curl http://ip-172-31-23-190/script.js'
                     
                     // Verify style.css
                     echo 'Verifying style.css...'
-                    sh 'curl http://ip-172-31-24-16/style.css'
+                    sh 'curl http://ip-172-31-23-190/style.css'
                 }
             }
         }
